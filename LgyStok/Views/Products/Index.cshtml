@@ -1,0 +1,42 @@
+﻿@model List<LgyStok.Models.Product>
+
+@{
+    ViewBag.Title = "Ürünler";
+}
+
+<h2>Ürünler</h2>
+
+<form method="get">
+    <input type="text" name="search" value="@ViewBag.Search" />
+    <button type="submit">Ara</button>
+</form>
+
+<table class="table">
+    <tr>
+        <th>Ad</th>
+        <th>Sku</th>
+        <th>Fiyat</th>
+        <th>Stok</th>
+    </tr>
+    @foreach (var p in Model)
+    {
+        <tr>
+            <td>@p.Name</td>
+            <td>@p.Sku</td>
+            <td>@p.Price</td>
+            <td>@p.Stock</td>
+        </tr>
+    }
+</table>
+
+@if (ViewBag.Page > 1)
+{
+    <a href="/Products?search=@ViewBag.Search&page=@(ViewBag.Page - 1)">Önceki</a>
+}
+
+Sayfa @ViewBag.Page / @ViewBag.TotalPages
+
+@if (ViewBag.Page < ViewBag.TotalPages)
+{
+    <a href="/Products?search=@ViewBag.Search&page=@(ViewBag.Page + 1)">Sonraki</a>
+}
