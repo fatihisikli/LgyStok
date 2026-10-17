@@ -6,6 +6,8 @@
 
 <h2>Ürünler</h2>
 
+<p><a href="/Products/Create">Yeni Ürün</a></p>
+
 <form method="get">
     <input type="text" name="search" value="@ViewBag.Search" />
     <button type="submit">Ara</button>
@@ -17,6 +19,7 @@
         <th>Sku</th>
         <th>Fiyat</th>
         <th>Stok</th>
+        <th></th>
     </tr>
     @foreach (var p in Model)
     {
@@ -25,6 +28,7 @@
             <td>@p.Sku</td>
             <td>@p.Price</td>
             <td>@p.Stock</td>
+            <td><a href="/Products/Edit/@p.Id">Düzenle</a></td>
         </tr>
     }
 </table>

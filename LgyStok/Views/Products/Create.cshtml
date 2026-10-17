@@ -1,0 +1,28 @@
+﻿@model LgyStok.Models.Product
+
+@{
+    ViewBag.Title = "Yeni Ürün";
+}
+
+<h2>Yeni Ürün</h2>
+
+<form method="post">
+    <div>
+        Ad: <input type="text" name="Name" value="@Model.Name" />
+        @Html.ValidationMessage("Name")
+    </div>
+    <div>
+        Sku: <input type="text" name="Sku" value="@Model.Sku" />
+        @Html.ValidationMessage("Sku")
+    </div>
+    <div>
+        Fiyat: <input type="text" name="Price" value="@Model.Price" />
+        @Html.ValidationMessage("Price")
+    </div>
+    <div>
+        Stok: <input type="text" name="Stock" value="@Model.Stock" />
+        @Html.ValidationMessage("Stock")
+    </div>
+    <button type="submit">Kaydet</button>
+    <a href="/Products">İptal</a>
+</form>
