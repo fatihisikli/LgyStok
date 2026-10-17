@@ -51,17 +51,33 @@ namespace LgyStok.Controllers
                     {
                         int productId = productIds[i];
                         int quantity = quantities[i];
+
+                        //System.Threading.Thread.Sleep(3000);   // geçici aynı anda cetvel siparişi için
+
                         var product = db.Products.Find(productId);
 
+                        // BONUSSUZ. aynı anda gelen iki istek ikisi de geçebiliyordu
                         // Stok yetmiyorsa her şeyi geri al
-                        if (product.Stock < quantity)
+                        //if (product.Stock < quantity)
+                        //{
+                        //    tx.Rollback();
+                        //    return Json(new { success = false, message = "Stok yetmiyor: " + product.Name });
+                        //}
+
+                        // Stoktan düş
+                        //product.Stock = product.Stock - quantity;
+
+                        // BONUSLUU: kontrol ve düşüm tek SQL komutunda. Stok yetiyorsa düşer, yetmiyorsa 0 satır etkilenir
+                        int etkilenen = db.Database.ExecuteSqlCommand(
+                            "UPDATE Products SET Stock = Stock - {0} WHERE Id = {1} AND Stock >= {0}",
+                            quantity, productId);
+
+                        // Hiçbir satır etkilenmediyse stok yetmiyor demektir, her şeyi geri al
+                        if (etkilenen == 0)
                         {
                             tx.Rollback();
                             return Json(new { success = false, message = "Stok yetmiyor: " + product.Name });
                         }
-
-                        // Stoktan düş
-                        product.Stock = product.Stock - quantity;
 
                         // Sipariş satırı 
                         var line = new OrderLine();
