@@ -1,140 +1,70 @@
-# \# LgyStok
+# LgyStok
 
-# 
+Küçük bir toptancı için stok ve sipariş uygulaması. .NET Framework 4.8, ASP.NET MVC 5, Entity Framework 6 (Code First Migrations) ve SQL Server LocalDB kullanılmıştır.
 
-# Küçük bir toptancı için stok ve sipariş uygulaması. .NET Framework 4.8, ASP.NET MVC 5, Entity Framework 6 (Code First Migrations) ve SQL Server LocalDB kullanılmıştır.
+## Gereksinimler
 
-# 
+- Windows
+- Visual Studio 2022 (ASP.NET and web development iş yükü)
+- SQL Server LocalDB (Visual Studio ile birlikte gelir) veya SQL Server Express
 
-# \## Gereksinimler
+## Kurulum
 
-# 
+1. Repo klonlanır: `git clone https://github.com/fatihisikli/LgyStok.git`
+2. `LgyStok.sln` dosyası Visual Studio'da açılır. NuGet paketleri derleme sırasında yüklenir. Yüklenmezse Solution üzerinde Restore NuGet Packages seçilir.
+3. Connection string `LgyStok/Web.config` içindeki `StokContext` kaydıdır. LocalDB için değişiklik gerekmez. SQL Server Express kullanılacaksa `Data Source` değeri `.\SQLEXPRESS` olarak değiştirilir.
+4. Package Manager Console'da (Default project: `LgyStok`) şu komut çalıştırılır:
 
-# \- Windows
+```
+   Update-Database
+```
 
-# \- Visual Studio 2022 (ASP.NET and web development iş yükü)
+   Veritabanı ve tablolar oluşturulur, seed ile 5 ürün eklenir: Kalem (100), Defter (50), Silgi (3), Cetvel (1), Çanta (0).
+5. F5 ile uygulama çalıştırılır. Üst menüden Ürünler, Yeni Sipariş ve Siparişler sayfalarına geçilir. Stok hareketleri, ürün listesinde her ürünün yanındaki Hareketler bağlantısından açılır.
 
-# \- SQL Server LocalDB (Visual Studio ile birlikte gelir) veya SQL Server Express
+## Veritabanını sıfırlama
 
-# 
+A senaryosundaki stok değerleri (98 ve 45) yalnızca temiz veritabanında elde edilir. Uygulama kapalıyken Package Manager Console'da sırayla şu komutlar çalıştırılır:
 
-# \## Kurulum
+```
+Update-Database -TargetMigration:$InitialDatabase
+Update-Database
+```
 
-# 
+İlk komut tabloları siler, ikincisi tabloları yeniden oluşturup seed verisini yükler. Sıfırlamadan sonra Ürünler sayfası seed verisiyle açılır:
 
-# 1\. Repo klonlanır: `git clone https://github.com/fatihisikli/LgyStok.git`
+![Ürünler sayfası, seed verisi](docs/urunler.png)
 
-# 2\. `LgyStok.sln` dosyası Visual Studio'da açılır. NuGet paketleri derleme sırasında yüklenir. Yüklenmezse Solution üzerinde Restore NuGet Packages seçilir.
+## Kabul senaryoları
 
-# 3\. Connection string `LgyStok/Web.config` içindeki `StokContext` kaydıdır. LocalDB için değişiklik gerekmez. SQL Server Express kullanılacaksa `Data Source` değeri `.\\SQLEXPRESS` olarak değiştirilir.
+### **A: Kalem x 2 + Defter x 5**
 
-# 4\. Package Manager Console'da (Default project: `LgyStok`) şu komut çalıştırılır:
+Veritabanı sıfırlanır. Yeni Sipariş sayfasında müşteri adı girilir, ilk satırda Kalem (adet 2) seçilir, Satır Ekle ile eklenen ikinci satırda Defter (adet 5) seçilir ve Siparişi Ver düğmesine basılır.
 
-# 
+**Beklenen sonuç:** Sipariş oluşur ve sipariş numarası ekranda görünür. Ürünler sayfasında Kalem 98, Defter 45 olur. Kalem ve Defter için Hareketler sayfalarında sırasıyla -2 ve -5 kayıtları görünür (toplam 2 kayıt). Siparişler sayfasında 1 sipariş, 2 satır ve 250 toplam tutar görünür.
 
-# ```
+**Ürünler sayfası:**
 
-# &#x20;  Update-Database
+![A senaryosu, ürünler](docs/a-urunler.png)
 
-# ```
+**Siparişler sayfası:**
 
-# 
+![A senaryosu, siparişler](docs/a-siparisler.png)
 
-# &#x20;  Veritabanı ve tablolar oluşturulur, seed ile 5 ürün eklenir: Kalem (100), Defter (50), Silgi (3), Cetvel (1), Çanta (0).
+### **B: Kalem x 2 + Silgi x 5**
 
-# 5\. F5 ile uygulama çalıştırılır. Üst menüden Ürünler, Yeni Sipariş ve Siparişler sayfalarına geçilir. Stok hareketleri, ürün listesinde her ürünün yanındaki Hareketler bağlantısından açılır.
+Silgi stoğu 3 olduğu için bu sipariş verilince ekranda "Stok yetmiyor: Silgi" mesajı görünür. Sipariş kaydı tek transaction içinde yapıldığından hiçbir kayıt kalmaz: Kalem stoğu değişmez, Siparişler sayfasında yeni sipariş görünmez, Hareketler sayfalarında yeni kayıt olmaz. Sipariş numarası bir atlayabilir, çünkü SQL Server Id sayacını geri almaz.
 
-# 
+![B senaryosu, stok hatası](docs/b-hata.png)
 
-# \## Veritabanını sıfırlama
+### **C: Token olmadan sipariş**
 
-# 
+Yeni Sipariş sayfası açıkken tarayıcıda F12 ile Console sekmesine geçilir ve şu komut çalıştırılır (Chrome gerekirse önce `allow pasting` yazılmasını ister):
 
-# A senaryosundaki stok değerleri (98 ve 45) yalnızca temiz veritabanında elde edilir. Uygulama kapalıyken Package Manager Console'da sırayla şu komutlar çalıştırılır:
+```js
+$.post("/Orders/Create", { customerName: "test", productIds: [1], quantities: [1] }).fail(function (x) { console.log("Reddedildi, status:", x.status); });
+```
 
-# 
+**Beklenen sonuç:** Konsolda `500 (Internal Server Error)` ve `Reddedildi, status: 500` görünür, sipariş kaydedilmez. Sayfadaki Siparişi Ver düğmesi `@Html.AntiForgeryToken()` ile üretilen token'ı gönderir. Bu istek göndermediği için `[ValidateAntiForgeryToken]` tarafından reddedilir.
 
-# ```
-
-# Update-Database -TargetMigration:$InitialDatabase
-
-# Update-Database
-
-# ```
-
-# 
-
-# İlk komut tabloları siler, ikincisi tabloları yeniden oluşturup seed verisini yükler. Sıfırlamadan sonra Ürünler sayfası seed verisiyle açılır:
-
-# 
-
-# !\[Ürünler sayfası, seed verisi](docs/urunler.png)
-
-# 
-
-# \## Kabul senaryoları
-
-# 
-
-# \### A: Kalem x 2 + Defter x 5
-
-# 
-
-# Veritabanı sıfırlanır. Yeni Sipariş sayfasında müşteri adı girilir, ilk satırda Kalem (adet 2) seçilir, Satır Ekle ile eklenen ikinci satırda Defter (adet 5) seçilir ve Siparişi Ver düğmesine basılır.
-
-# 
-
-# Beklenen sonuç: Sipariş oluşur ve sipariş numarası ekranda görünür. Ürünler sayfasında Kalem 98, Defter 45 olur. Kalem ve Defter için Hareketler sayfalarında sırasıyla -2 ve -5 kayıtları görünür (toplam 2 kayıt). Siparişler sayfasında 1 sipariş, 2 satır ve 250 toplam tutar görünür.
-
-# 
-
-# Ürünler sayfası:
-
-# 
-
-# !\[A senaryosu, ürünler](docs/a-urunler.png)
-
-# 
-
-# Siparişler sayfası:
-
-# 
-
-# !\[A senaryosu, siparişler](docs/a-siparisler.png)
-
-# 
-
-# \### B: Kalem x 2 + Silgi x 5
-
-# 
-
-# Silgi stoğu 3 olduğu için bu sipariş verilince ekranda "Stok yetmiyor: Silgi" mesajı görünür. Sipariş kaydı tek transaction içinde yapıldığından hiçbir kayıt kalmaz: Kalem stoğu değişmez, Siparişler sayfasında yeni sipariş görünmez, Hareketler sayfalarında yeni kayıt olmaz. Sipariş numarası bir atlayabilir, çünkü SQL Server Id sayacını geri almaz.
-
-# 
-
-# !\[B senaryosu, stok hatası](docs/b-hata.png)
-
-# 
-
-# \### C: Token olmadan sipariş
-
-# 
-
-# Yeni Sipariş sayfası açıkken tarayıcıda F12 ile Console sekmesine geçilir ve şu komut çalıştırılır (Chrome gerekirse önce `allow pasting` yazılmasını ister):
-
-# 
-
-# ```js
-
-# $.post("/Orders/Create", { customerName: "test", productIds: \[1], quantities: \[1] }).fail(function (x) { console.log("Reddedildi, status:", x.status); });
-
-# ```
-
-# 
-
-# Beklenen sonuç: Konsolda `500 (Internal Server Error)` ve `Reddedildi, status: 500` görünür, sipariş kaydedilmez. Sayfadaki Siparişi Ver düğmesi `@Html.AntiForgeryToken()` ile üretilen token'ı gönderir. Bu istek göndermediği için `\[ValidateAntiForgeryToken]` tarafından reddedilir.
-
-# 
-
-# !\[C senaryosu, token'sız istek](docs/c-konsol.png)
-
+![C senaryosu, token'sız istek](docs/c-konsol.png)
