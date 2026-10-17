@@ -1,0 +1,29 @@
+﻿@model List<LgyStok.Models.Order>
+
+@{
+    ViewBag.Title = "Siparişler";
+}
+
+<h2>Siparişler</h2>
+
+<p><a href="/Orders/Create">Yeni Sipariş</a></p>
+
+<table class="table">
+    <tr>
+        <th>No</th>
+        <th>Müşteri</th>
+        <th>Tarih</th>
+        <th>Satır sayısı</th>
+        <th>Toplam</th>
+    </tr>
+    @foreach (var o in Model)
+    {
+        <tr>
+            <td>@o.Id</td>
+            <td>@o.CustomerName</td>
+            <td>@o.CreatedAt</td>
+            <td>@o.Lines.Count</td>
+            <td>@o.Total</td>
+        </tr>
+    }
+</table>

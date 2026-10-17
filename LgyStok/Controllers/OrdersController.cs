@@ -4,12 +4,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using System.Data.Entity;
 
 namespace LgyStok.Controllers
 {
     public class OrdersController : Controller
     {
         private StokContext db = new StokContext();
+
+        public ActionResult Index()
+        {
+            var orders = db.Orders
+                .Include(o => o.Lines)
+                .OrderByDescending(o => o.Id)
+                .ToList();
+
+            return View(orders);
+        }
 
         public ActionResult Create()
         {

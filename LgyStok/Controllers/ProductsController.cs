@@ -112,5 +112,22 @@ namespace LgyStok.Controllers
 
             return RedirectToAction("Index"); 
         }
+
+        public ActionResult Movements(int id)
+        {
+            var product = db.Products.Find(id);
+            if (product == null)
+            {
+                return HttpNotFound();   // ürün yoksa 404
+            }
+
+            var list = db.StockMovements
+                .Where(m => m.ProductId == id)
+                .OrderByDescending(m => m.CreatedAt)   // en yeni üstte
+                .ToList();
+
+            ViewBag.ProductName = product.Name;
+            return View(list);
+        }
     }
 }
