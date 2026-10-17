@@ -16,7 +16,7 @@
 - Bölüm 5 - Sipariş ekranı (AJAX, AntiForgeryToken): 45 Dakika
 - Bölüm 6 - Tek transaction ile sipariş kaydı: 45 Dakika
 - Bölüm 7 - Stok hareketleri ve sipariş listesi: 30 Dakika
-- Bölüm 8 - A/B/C testleri, README, LEARNING.md: 
+- Bölüm 8 - A/B/C testleri, README, LEARNING.md: 20 Dakika
 
 ## 3. AI kullanımı ve beni yanlış yönlendirdiği yerler
 
