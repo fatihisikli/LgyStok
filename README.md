@@ -68,3 +68,34 @@ $.post("/Orders/Create", { customerName: "test", productIds: [1], quantities: [1
 **Beklenen sonuç:** Konsolda `500 (Internal Server Error)` ve `Reddedildi, status: 500` görünür, sipariş kaydedilmez. Sayfadaki Siparişi Ver düğmesi `@Html.AntiForgeryToken()` ile üretilen token'ı gönderir. Bu istek göndermediği için `[ValidateAntiForgeryToken]` tarafından reddedilir.
 
 ![C senaryosu, token'sız istek](docs/c-konsol.png)
+
+
+
+
+
+## Eşzamanlılık (bonus)
+
+İki kullanıcı aynı anda son Cetvel'i sipariş etmeye çalıştığında yalnızca biri başarılı olur. Stok önce okunup sonra düşülseydi iki istek de stoğu 1 görüp ikisi de satış yapabilirdi. Bu yüzden stok kontrolü ve düşümü tek SQL komutunda yapılır:
+
+```sql
+UPDATE Products SET Stock = Stock - @adet WHERE Id = @id AND Stock >= @adet
+```
+
+Etkilenen satır sayısı 0 ise stok yetmemiştir. Bu durumda transaction geri alınır ve "Stok yetmiyor" mesajı döner. SQL Server aynı satıra gelen iki güncellemeyi sırayla işlediği için ikinci istek güncel stoğu (0) görür ve koşulu geçemez.
+
+### Test
+
+1. Veritabanı sıfırlanır, Cetvel stoğu 1'dir (Ürünler sayfasından kontrol edilir).
+2. Yarışı belirginleştirmek için `OrdersController.cs` içindeki `Thread.Sleep(3000)` satırının başındaki `//` işaretleri geçici olarak kaldırılır ve uygulama yeniden başlatılır.
+3. Yeni Sipariş sayfası açıkken tarayıcıda F12 ile Console sekmesine geçilir ve şu kod çalıştırılır (Chrome gerekirse önce `allow pasting` yazılmasını ister):
+
+```js
+var token = $('input[name="__RequestVerificationToken"]').val();
+var cetvelId = $("#rowTemplate option:contains('Cetvel')").val();
+function ver() { return $.ajax({ url: "/Orders/Create", type: "POST", traditional: true, data: { __RequestVerificationToken: token, customerName: "yaris", productIds: [cetvelId], quantities: [1] } }); }
+$.when(ver(), ver()).done(function (a, b) { console.log(a[0].message, "|", b[0].message); });
+```
+
+Beklenen sonuç: Konsolda iki mesajdan biri "Sipariş oluştu, no: ...", diğeri "Stok yetmiyor: Cetvel" olur. Ürünler sayfasında Cetvel stoğu 0 görünür, Siparişler sayfasında Cetvel için tek sipariş bulunur.
+
+Test bittikten sonra `Thread.Sleep` satırı tekrar yorum satırı yapılır.
