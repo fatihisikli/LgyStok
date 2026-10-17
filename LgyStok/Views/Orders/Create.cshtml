@@ -1,0 +1,97 @@
+﻿@model List<LgyStok.Models.Product>
+
+@{
+    ViewBag.Title = "Yeni Sipariş";
+}
+
+<h2>Yeni Sipariş</h2>
+
+@* token attr, ajax ile göneriliyor. *@
+@Html.AntiForgeryToken()
+
+<div>
+    Müşteri adı: <input type="text" id="customerName" />
+</div>
+
+<table class="table">
+    <tr>
+        <th>Ürün</th>
+        <th>Adet</th>
+        <th></th>
+    </tr>
+    <tbody id="lines">
+    </tbody>
+</table>
+
+<button type="button" id="addLine">Satır Ekle</button>
+<button type="button" id="submitOrder">Siparişi Ver</button>
+
+<div id="result"></div>
+
+@* Şablon satır: gizli, "Satır Ekle" bunu kopyalıyor *@
+<table style="display:none">
+    <tr id="rowTemplate">
+        <td>
+            <select class="product">
+                @foreach (var p in Model)
+                {
+                    <option value="@p.Id">@p.Name</option>
+                }
+            </select>
+        </td>
+        <td><input type="text" class="quantity" value="1" /></td>
+        <td><button type="button" class="removeLine">Sil</button></td>
+    </tr>
+</table>
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+
+            // Satır ekle
+            $("#addLine").click(function () {
+                var row = $("#rowTemplate").clone();   // şablonu kopyala
+                row.removeAttr("id");                  // aynı id iki kez olmasın
+                $("#lines").append(row);               // tabloya ekle
+            });
+
+            
+            $(document).on("click", ".removeLine", function () {
+                $(this).closest("tr").remove();
+            });
+
+
+            $("#submitOrder").click(function () {
+                var productIds = [];
+                var quantities = [];
+
+                // satır satır ürün ve adet toplanıyor.
+                $("#lines tr").each(function () {
+                    productIds.push($(this).find(".product").val());
+                    quantities.push($(this).find(".quantity").val());
+                });
+
+                $.ajax({
+                    url: "/Orders/Create",
+                    type: "POST",
+                    traditional: true,   // diziler productIds=1&productIds=2 şeklinde gitsin
+                    data: {
+                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val(),
+                        customerName: $("#customerName").val(),
+                        productIds: productIds,
+                        quantities: quantities
+                    },
+                    success: function (res) {
+                        $("#result").text(res.message);   
+                    },
+                    error: function () {
+                        $("#result").text("İstek reddedildi");
+                    }
+                });
+            });
+
+            // sayfa yüklendiğinde ilk satır getiriyor.
+            $("#addLine").click();
+        });
+    </script>
+}

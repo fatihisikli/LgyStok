@@ -108,9 +108,9 @@ namespace LgyStok.Controllers
             mevcut.Sku = product.Sku;
             mevcut.Price = product.Price;
             mevcut.Stock = product.Stock;
-            db.SaveChanges();   // veritabanına kaydet
+            db.SaveChanges(); 
 
-            return RedirectToAction("Index");   // listeye dön
+            return RedirectToAction("Index"); 
         }
     }
 }
