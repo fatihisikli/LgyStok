@@ -10,7 +10,7 @@
 - Bölüm 1 - Kurulum ve proje iskeleti: 10 dakika
 - Bölüm 2 - Veri modeli, migration, seed: 25 dakika
 - Bölüm 3 - Ürün listesi (sayfalama, arama): 30 Dakika
-- Bölüm 4 - Ürün ekle/düzenle (doğrulama): 
+- Bölüm 4 - Ürün ekle/düzenle (doğrulama): 30 Dakika
 - Bölüm 5 - Sipariş ekranı (AJAX, AntiForgeryToken): 
 - Bölüm 6 - Tek transaction ile sipariş kaydı: 
 - Bölüm 7 - Stok hareketleri ve sipariş listesi: 
