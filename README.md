@@ -6,7 +6,7 @@ Küçük bir toptancı için stok ve sipariş uygulaması. .NET Framework 4.8, A
 
 - Windows
 - Visual Studio 2022 (ASP.NET and web development iş yükü)
-- SQL Server LocalDB (Visual Studio ile birlikte gelir) veya SQL Server Express
+- SQL Server LocalDB veya SQL Server Express
 
 ## Kurulum
 
