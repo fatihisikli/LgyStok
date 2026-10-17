@@ -1,6 +1,6 @@
 # LgyStok
 
-Küçük bir toptancı için stok ve sipariş uygulaması. .NET Framework 4.8, ASP.NET MVC 5, Entity Framework 6 (Code First Migrations) ve SQL Server LocalDB kullanılmıştır.
+LgyTech Case, .NET Framework 4.8, ASP.NET MVC 5, Entity Framework 6 (Code First Migrations) ve SQL Server LocalDB kullanılmıştır.
 
 ## Gereksinimler
 
